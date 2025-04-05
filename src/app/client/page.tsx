@@ -1,11 +1,14 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import './client.css'
 
 export default function ClientPage() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const peerRef = useRef<RTCPeerConnection | null>(null)
   const socketRef = useRef<WebSocket | null>(null)
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
   const signalingUrl = 'wss://betel-webrtc-stream-server.onrender.com'
 
   useEffect(() => {
@@ -17,26 +20,18 @@ export default function ClientPage() {
       socket.send(JSON.stringify({ type: 'register', role: 'client' }))
     }
 
-    socket.onerror = (err) => {
-      console.error('[Client] WebSocket error:', err)
-    }
-
     socket.onmessage = async (event) => {
       const message = JSON.parse(event.data)
-      console.log('[Client] Received:', message)
 
       if (message.type === 'offer') {
         console.log('[Client] Received offer')
         const pc = new RTCPeerConnection()
-
         peerRef.current = pc
 
         pc.ontrack = (event) => {
-          console.log('[Client] Received track:', event.streams)
+          console.log('[Client] Receiving track...')
           if (videoRef.current) {
             videoRef.current.srcObject = event.streams[0]
-          } else {
-            console.warn('[Client] videoRef is null!')
           }
         }
 
@@ -63,7 +58,6 @@ export default function ClientPage() {
       }
 
       if (message.type === 'candidate') {
-        console.log('[Client] ICE candidate')
         await peerRef.current?.addIceCandidate(new RTCIceCandidate(message.candidate))
       }
     }
@@ -71,16 +65,23 @@ export default function ClientPage() {
     return () => socket.close()
   }, [])
 
+  const handleFullscreen = () => {
+    const video = videoRef.current
+    if (!video) return
+
+    if (!document.fullscreenElement) {
+      video.requestFullscreen().then(() => setIsFullscreen(true))
+    } else {
+      document.exitFullscreen().then(() => setIsFullscreen(false))
+    }
+  }
+
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold">Client View</h1>
-      <video
-        ref={videoRef}
-        autoPlay
-        playsInline
-        muted
-        className="mt-4 w-full max-w-xl border rounded bg-black"
-      />
+    <div className="client-container">
+      <video ref={videoRef} autoPlay playsInline muted className="client-video" />
+      <button className="fullscreen-button" onClick={handleFullscreen}>
+        {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+      </button>
     </div>
   )
 }
