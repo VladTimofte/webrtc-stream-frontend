@@ -1,13 +1,12 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import './client.css'
 
 export default function ClientPage() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const peerRef = useRef<RTCPeerConnection | null>(null)
   const socketRef = useRef<WebSocket | null>(null)
-  const [isFullscreen, setIsFullscreen] = useState(false)
 
   const signalingUrl = 'wss://betel-webrtc-stream-server.onrender.com'
 
@@ -68,19 +67,13 @@ export default function ClientPage() {
   const handleFullscreen = () => {
     const video = videoRef.current
     if (!video) return
-
-    if (!document.fullscreenElement) {
-      video.requestFullscreen().then(() => setIsFullscreen(true))
-    } else {
-      document.exitFullscreen().then(() => setIsFullscreen(false))
-    }
   }
 
   return (
     <div className="client-container">
       <video ref={videoRef} autoPlay playsInline className="client-video" />
       <button className="fullscreen-button" onClick={handleFullscreen}>
-        {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+        Fullscreen
       </button>
     </div>
   )
