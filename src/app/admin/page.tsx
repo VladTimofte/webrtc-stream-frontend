@@ -14,7 +14,7 @@ export default function AdminPage() {
   const [isMuted, setIsMuted] = useState(true)
 
 
-  const signalingUrl = 'wss://betel-ebrtc-stream-server.onrender.com'
+  const signalingUrl = 'wss://betel-webrtc-stream-server.onrender.com'
 
   const createOffer = useCallback(async () => {
     setLiveStatus('connecting')
