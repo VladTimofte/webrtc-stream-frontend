@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
+import './admin.css'
 
 export default function AdminPage() {
   const videoRef = useRef<HTMLVideoElement>(null)
@@ -9,6 +10,7 @@ export default function AdminPage() {
   const streamRef = useRef<MediaStream | null>(null)
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([])
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null)
+  const [isLive, setIsLive] = useState(false)
 
   const signalingUrl = 'wss://betel-webrtc-stream-server.onrender.com'
 
@@ -24,6 +26,7 @@ export default function AdminPage() {
       to: 'client',
       payload: offer
     }))
+    setIsLive(true)
   }, [])
 
   useEffect(() => {
@@ -106,67 +109,46 @@ export default function AdminPage() {
   const stopLive = () => {
     peerRef.current?.close()
     peerRef.current = null
+    setIsLive(false)
     console.log('[Admin] Live stopped')
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-start p-6">
-      <div className="w-full max-w-2xl space-y-6">
-        <h1 className="text-3xl font-bold text-center text-gray-800">🎥 Admin Live Stream</h1>
+    <div className="admin-container">
+          {isLive && (
+            <div className="live-indicator">
+              🟢 LIVE
+            </div>
+          )}
+          {!isLive && (
+            <div className="live-indicator off">
+              🔴 OFFLINE
+            </div>
+          )}
+      <h1>🎥 Betel Live Stream </h1>
 
-        <div className="rounded-xl overflow-hidden border border-gray-300 bg-black">
-          <video
-            ref={videoRef}
-            autoPlay
-            playsInline
-            muted
-            className="w-full h-[360px] object-contain bg-black"
-          />
-        </div>
+      <div className="video-wrapper">
+        <video ref={videoRef} autoPlay playsInline muted />
+      </div>
 
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-          <label className="text-sm font-medium text-gray-700">Select Camera:</label>
-          <select
-            className="w-full sm:w-auto border p-2 rounded bg-white text-gray-800"
-            value={selectedDeviceId ?? ''}
-            onChange={e => setSelectedDeviceId(e.target.value)}
-          >
-            {devices.map((device) => (
-              <option key={device.deviceId} value={device.deviceId}>
-                {device.label || `Camera ${device.deviceId.slice(-4)}`}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div className="controls">
+        <label>Select Camera:</label>
+        <select
+          value={selectedDeviceId ?? ''}
+          onChange={e => setSelectedDeviceId(e.target.value)}
+        >
+          {devices.map(device => (
+            <option key={device.deviceId} value={device.deviceId}>
+              {device.label || `Camera ${device.deviceId.slice(-4)}`}
+            </option>
+          ))}
+        </select>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <button
-            onClick={startCamera}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-medium"
-          >
-            Start Camera
-          </button>
-
-          <button
-            onClick={createOffer}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded font-medium"
-          >
-            Start Live
-          </button>
-
-          <button
-            onClick={stopLive}
-            className="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded font-medium"
-          >
-            Stop Live
-          </button>
-
-          <button
-            onClick={stopCamera}
-            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded font-medium"
-          >
-            Stop Camera
-          </button>
+        <div className="buttons">
+          <button onClick={startCamera} className="blue">Start Camera</button>
+          <button onClick={createOffer} className="green">Start Live</button>
+          <button onClick={stopLive} className="yellow">Stop Live</button>
+          <button onClick={stopCamera} className="red">Stop Camera</button>
         </div>
       </div>
     </div>
