@@ -78,7 +78,7 @@ export default function ClientPage() {
 
   return (
     <div className="client-container">
-      <video ref={videoRef} autoPlay playsInline muted className="client-video" />
+      <video ref={videoRef} autoPlay playsInline className="client-video" />
       <button className="fullscreen-button" onClick={handleFullscreen}>
         {isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
       </button>
