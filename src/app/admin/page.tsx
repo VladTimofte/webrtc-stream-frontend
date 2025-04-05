@@ -9,7 +9,7 @@ export default function AdminPage() {
   const socketRef = useRef<WebSocket | null>(null)
   const [stream, setStream] = useState<MediaStream | null>(null)
 
-  const signalingUrl = 'ws://localhost:3001'
+  const signalingUrl = 'ws://betel-webrtc-stream-server.onrender.com'
 
   const createOffer = useCallback(async () => {
     const pc = peerRef.current
