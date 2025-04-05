@@ -63,15 +63,31 @@ export default function AdminPage() {
   }, [createOffer])
 
   useEffect(() => {
-    navigator.mediaDevices.enumerateDevices().then(devices => {
-      const videoDevices = devices.filter(d => d.kind === 'videoinput')
-      setDevices(videoDevices)
-      if (videoDevices[0]) {
-        setSelectedDeviceId(videoDevices[0].deviceId)
+    async function loadDevicesWithPermission() {
+      try {
+        // 1. Cerem acces la cameră fără să o folosim
+        const tempStream = await navigator.mediaDevices.getUserMedia({ video: true })
+        
+        // 2. După ce obținem permisiunea, putem citi label-urile
+        const devices = await navigator.mediaDevices.enumerateDevices()
+        const videoDevices = devices.filter(d => d.kind === 'videoinput')
+        setDevices(videoDevices)
+  
+        // Setăm prima cameră ca default
+        if (videoDevices[0]) {
+          setSelectedDeviceId(videoDevices[0].deviceId)
+        }
+  
+        // 3. Oprim camera temporară (ca să nu o blocheze pentru alt stream)
+        tempStream.getTracks().forEach(track => track.stop())
+      } catch (error) {
+        console.error('Camera permission denied or unavailable', error)
       }
-    })
+    }
+  
+    loadDevicesWithPermission()
   }, [])
-
+  
   const startCamera = async () => {
     if (!selectedDeviceId) return
 
