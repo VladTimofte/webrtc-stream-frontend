@@ -1,6 +1,14 @@
+body {
+    margin: 0 !important;
+}
+
+label {
+    color: white;
+}
+
 .admin-container {
     min-height: 100vh;
-    background: #f4f4f4;
+    background: #252525;
     padding: 2rem;
     display: flex;
     flex-direction: column;
@@ -97,21 +105,38 @@
   button.red:hover {
     background-color: #b91c1c;
   }
-  .live-indicator {
+
+
+  .status {
+    margin-bottom: 1rem;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    text-align: center;
     position: fixed;
     top: 16px;
     right: 16px;
     padding: 6px 12px;
     font-weight: bold;
     color: white;
-    background-color: #22c55e; /* green */
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.15);
     z-index: 999;
   }
   
-  .live-indicator.off {
-    background-color: #dc2626; /* red */
+  .status.connecting {
+    background-color: #facc15;
+    color: #78350f;
+  }
+  
+  .status.live {
+    background-color: #22c55e;
+    color: white;
+  }
+  
+  .status.idle {
+    background-color: #e5e7eb;
+    color: #374151;
   }
   
   

@@ -10,7 +10,9 @@ export default function AdminPage() {
   const streamRef = useRef<MediaStream | null>(null)
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([])
   const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null)
-  const [isLive, setIsLive] = useState(false)
+  const [liveStatus, setLiveStatus] = useState<'idle' | 'connecting' | 'live'>('idle')
+  const [isMuted, setIsMuted] = useState(true)
+
 
   const signalingUrl = 'wss://betel-webrtc-stream-server.onrender.com'
 
@@ -26,7 +28,7 @@ export default function AdminPage() {
       to: 'client',
       payload: offer
     }))
-    setIsLive(true)
+    setLiveStatus('connecting')
   }, [])
 
   useEffect(() => {
@@ -109,26 +111,37 @@ export default function AdminPage() {
   const stopLive = () => {
     peerRef.current?.close()
     peerRef.current = null
-    setIsLive(false)
+    setLiveStatus('idle')
     console.log('[Admin] Live stopped')
+  }
+
+  const toggleMute = () => {
+    setIsMuted(prev => !prev)
   }
 
   return (
     <div className="admin-container">
-          {isLive && (
-            <div className="live-indicator">
-              🟢 LIVE
-            </div>
+          {liveStatus === 'connecting' && (
+        <div className="status connecting">⏳ Connecting to client...</div>
           )}
-          {!isLive && (
-            <div className="live-indicator off">
-              🔴 OFFLINE
-            </div>
+
+          {liveStatus === 'live' && (
+            <div className="status live">🟢 Live is ON</div>
+          )}
+
+          {liveStatus === 'idle' && (
+            <div className="status idle">🔴 Offline</div>
           )}
       <h1>🎥 Betel Live Stream </h1>
 
       <div className="video-wrapper">
-        <video ref={videoRef} autoPlay playsInline muted />
+        <video
+          ref={videoRef}
+          autoPlay
+          playsInline
+          muted={isMuted}
+        />
+
       </div>
 
       <div className="controls">
@@ -149,6 +162,13 @@ export default function AdminPage() {
           <button onClick={createOffer} className="green">Start Live</button>
           <button onClick={stopLive} className="yellow">Stop Live</button>
           <button onClick={stopCamera} className="red">Stop Camera</button>
+          <button
+              onClick={toggleMute}
+              className="blue"
+            >
+              {isMuted ? '🔇 Mute Preview (ON)' : '🔊 Unmute Preview'}
+            </button>
+
         </div>
       </div>
     </div>
