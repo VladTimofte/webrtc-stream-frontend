@@ -6,7 +6,7 @@ export default function ClientPage() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const peerRef = useRef<RTCPeerConnection | null>(null)
   const socketRef = useRef<WebSocket | null>(null)
-  const signalingUrl = 'ws://betel-webrtc-stream-server.onrender.com'
+  const signalingUrl = 'wss://betel-webrtc-stream-server.onrender.com'
 
   useEffect(() => {
     const socket = new WebSocket(signalingUrl)
